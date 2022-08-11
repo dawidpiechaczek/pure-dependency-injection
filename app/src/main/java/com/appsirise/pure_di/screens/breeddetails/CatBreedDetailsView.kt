@@ -1,15 +1,15 @@
 package com.appsirise.pure_di.screens.breeddetails
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.IdRes
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.appsirise.pure_di.R
+import com.appsirise.pure_di.base.BaseView
 import com.appsirise.pure_di.screens.common.toolbar.MyToolbar
 
-class CatBreedDetailsView(layoutInflater: LayoutInflater, parent: ViewGroup?) {
+class CatBreedDetailsView(layoutInflater: LayoutInflater, parent: ViewGroup?) :
+    BaseView<CatBreedDetailsView.Listener>(layoutInflater, parent, R.layout.layout_breed_details) {
 
     interface Listener {
         fun onBackClicked()
@@ -18,10 +18,6 @@ class CatBreedDetailsView(layoutInflater: LayoutInflater, parent: ViewGroup?) {
     private val toolbar: MyToolbar
     private val swipeRefresh: SwipeRefreshLayout
     private val txtCatBreedBody: TextView
-
-    private val listeners = HashSet<Listener>()
-
-    val rootView: View = layoutInflater.inflate(R.layout.layout_breed_details, parent, false)
 
     init {
         txtCatBreedBody = findViewById(R.id.txt_breed_body)
@@ -45,13 +41,4 @@ class CatBreedDetailsView(layoutInflater: LayoutInflater, parent: ViewGroup?) {
         swipeRefresh.isRefreshing = false
     }
 
-    fun registerListener(listener: Listener) {
-        listeners.add(listener)
-    }
-
-    fun unregisterListener(listener: Listener) {
-        listeners.remove(listener)
-    }
-
-    private fun <T : View?> findViewById(@IdRes id: Int) = rootView.findViewById<T>(id)
 }
