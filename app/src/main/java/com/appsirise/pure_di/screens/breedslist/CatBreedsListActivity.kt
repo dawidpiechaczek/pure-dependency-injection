@@ -6,51 +6,32 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.appsirise.pure_di.Constants
 import com.appsirise.pure_di.R
-import com.appsirise.pure_di.networking.CatsApi
 import com.appsirise.pure_di.breeds.CatBreed
-import com.appsirise.pure_di.screens.common.dialogs.ServerErrorDialogFragment
+import com.appsirise.pure_di.networking.CatsApi
 import com.appsirise.pure_di.screens.breeddetails.CatBreedDetailsActivity
 import com.appsirise.pure_di.screens.breedslist.CatBreedsListActivity.CatBreedsAdapter.CatBreedViewHolder
+import com.appsirise.pure_di.screens.common.dialogs.ServerErrorDialogFragment
 import kotlinx.coroutines.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.*
 
-class CatBreedsListActivity : AppCompatActivity() {
+class CatBreedsListActivity : AppCompatActivity(), CatBreedsListView.Listener {
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    private lateinit var swipeRefresh: SwipeRefreshLayout
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var catBreedsAdapter: CatBreedsAdapter
     private lateinit var stackoverflowApi: CatsApi
+    private lateinit var catBreedsListView: CatBreedsListView
 
     private var isDataLoaded = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.layout_cat_breeds_list)
-
-        // init pull-down-to-refresh
-        swipeRefresh = findViewById(R.id.swipeRefresh)
-        swipeRefresh.setOnRefreshListener {
-            fetchCatBreeds()
-        }
-
-        // init recycler view
-        recyclerView = findViewById(R.id.recycler)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        catBreedsAdapter = CatBreedsAdapter { clickedCat ->
-            CatBreedDetailsActivity.start(this, clickedCat.id)
-        }
-        recyclerView.adapter = catBreedsAdapter
-
+        catBreedsListView = CatBreedsListView(LayoutInflater.from(this), null)
+        setContentView(catBreedsListView.rootView)
         // init retrofit
         val retrofit = Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
@@ -61,23 +42,25 @@ class CatBreedsListActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        catBreedsListView.registerListener(this)
         if (!isDataLoaded) {
             fetchCatBreeds()
         }
     }
 
     override fun onStop() {
+        catBreedsListView.unregisterListener(this)
         super.onStop()
         coroutineScope.coroutineContext.cancelChildren()
     }
 
     private fun fetchCatBreeds() {
         coroutineScope.launch {
-            showProgressIndication()
+            catBreedsListView.showProgressIndication()
             try {
                 val response = stackoverflowApi.fetchCatBreeds(20)
                 if (response.isSuccessful && response.body() != null) {
-                    catBreedsAdapter.bindData(response.body()!!)
+                    catBreedsListView.bindCats(response.body()!!)
                     isDataLoaded = true
                 } else {
                     onFetchFailed()
@@ -87,7 +70,7 @@ class CatBreedsListActivity : AppCompatActivity() {
                     onFetchFailed()
                 }
             } finally {
-                hideProgressIndication()
+                catBreedsListView.hideProgressIndication()
             }
         }
     }
@@ -98,14 +81,12 @@ class CatBreedsListActivity : AppCompatActivity() {
             .commitAllowingStateLoss()
     }
 
-    private fun showProgressIndication() {
-        swipeRefresh.isRefreshing = true
+    override fun onRefreshClicked() {
+        fetchCatBreeds()
     }
 
-    private fun hideProgressIndication() {
-        if (swipeRefresh.isRefreshing) {
-            swipeRefresh.isRefreshing = false
-        }
+    override fun onCatBreedClicked(catBreed: CatBreed) {
+        CatBreedDetailsActivity.start(this, catBreed.id)
     }
 
     class CatBreedsAdapter(
@@ -139,6 +120,5 @@ class CatBreedsListActivity : AppCompatActivity() {
         override fun getItemCount(): Int {
             return catBreedsList.size
         }
-
     }
 }
