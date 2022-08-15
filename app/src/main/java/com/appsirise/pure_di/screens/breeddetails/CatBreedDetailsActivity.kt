@@ -5,35 +5,25 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
-import com.appsirise.pure_di.Constants
-import com.appsirise.pure_di.networking.CatsApi
 import com.appsirise.pure_di.screens.common.dialogs.ServerErrorDialogFragment
 import kotlinx.coroutines.*
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class CatBreedDetailsActivity : AppCompatActivity(), CatBreedDetailsView.Listener {
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    private lateinit var stackoverflowApi: CatsApi
     private lateinit var catBreedDetailsView: CatBreedDetailsView
     private lateinit var catId: String
+
+    private lateinit var fetchCatBreedDetailsUseCase: FetchCatBreedDetailsUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         catBreedDetailsView = CatBreedDetailsView(LayoutInflater.from(this), null)
         setContentView(catBreedDetailsView.rootView)
-
-        // init retrofit
-        val retrofit = Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        stackoverflowApi = retrofit.create(CatsApi::class.java)
-
         // retrieve breed ID passed from outside
         catId = intent.extras!!.getString(EXTRA_CAT_BREED_ID)!!
+        fetchCatBreedDetailsUseCase = FetchCatBreedDetailsUseCase()
     }
 
     override fun onStart() {
@@ -52,15 +42,10 @@ class CatBreedDetailsActivity : AppCompatActivity(), CatBreedDetailsView.Listene
         coroutineScope.launch {
             catBreedDetailsView.showProgressIndication()
             try {
-                val response = stackoverflowApi.fetchBreedDetails(catId)
-                if (response.isSuccessful && response.body() != null) {
-                    catBreedDetailsView.bindCatBreedDescription(response.body()!!.description)
-                } else {
-                    onFetchFailed()
-                }
-            } catch (t: Throwable) {
-                if (t !is CancellationException) {
-                    onFetchFailed()
+                when (val result = fetchCatBreedDetailsUseCase.fetchCatBreedDetails(catId)) {
+                    FetchCatBreedDetailsUseCase.Result.Failure -> onFetchFailed()
+                    is FetchCatBreedDetailsUseCase.Result.Success ->
+                        catBreedDetailsView.bindCatBreedDescription(result.description)
                 }
             } finally {
                 catBreedDetailsView.hideProgressIndication()
