@@ -10,9 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.appsirise.pure_di.R
 import com.appsirise.pure_di.breeds.CatBreed
-import com.appsirise.pure_di.screens.breeddetails.CatBreedDetailsActivity
 import com.appsirise.pure_di.screens.breedslist.CatBreedsListActivity.CatBreedsAdapter.CatBreedViewHolder
-import com.appsirise.pure_di.screens.common.dialogs.ServerErrorDialogFragment
+import com.appsirise.pure_di.screens.common.ScreensNavigator
+import com.appsirise.pure_di.screens.common.dialogs.DialogsNavigator
 import kotlinx.coroutines.*
 
 class CatBreedsListActivity : AppCompatActivity(), CatBreedsListView.Listener {
@@ -20,16 +20,19 @@ class CatBreedsListActivity : AppCompatActivity(), CatBreedsListView.Listener {
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private lateinit var catBreedsListView: CatBreedsListView
+    private lateinit var fetchCatsCatBreedsUseCase: FetchCatBreedsUseCase
+    private lateinit var screensNavigator: ScreensNavigator
+    private lateinit var dialogsNavigator: DialogsNavigator
 
     private var isDataLoaded = false
-
-    private lateinit var fetchCatsCatBreedsUseCase: FetchCatBreedsUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         catBreedsListView = CatBreedsListView(LayoutInflater.from(this), null)
         setContentView(catBreedsListView.rootView)
         fetchCatsCatBreedsUseCase = FetchCatBreedsUseCase()
+        screensNavigator = ScreensNavigator(this)
+        dialogsNavigator = DialogsNavigator(supportFragmentManager)
     }
 
     override fun onStart() {
@@ -66,9 +69,7 @@ class CatBreedsListActivity : AppCompatActivity(), CatBreedsListView.Listener {
     }
 
     private fun onFetchFailed() {
-        supportFragmentManager.beginTransaction()
-            .add(ServerErrorDialogFragment.newInstance(), null)
-            .commitAllowingStateLoss()
+        dialogsNavigator.showServerErrorDialog()
     }
 
     override fun onRefreshClicked() {
@@ -76,7 +77,7 @@ class CatBreedsListActivity : AppCompatActivity(), CatBreedsListView.Listener {
     }
 
     override fun onCatBreedClicked(catBreed: CatBreed) {
-        CatBreedDetailsActivity.start(this, catBreed.id)
+        screensNavigator.navigateToCatBreedDetails(catBreed.id)
     }
 
     class CatBreedsAdapter(

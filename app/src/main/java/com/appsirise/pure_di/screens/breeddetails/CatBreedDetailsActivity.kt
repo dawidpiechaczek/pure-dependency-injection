@@ -5,7 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
-import com.appsirise.pure_di.screens.common.dialogs.ServerErrorDialogFragment
+import com.appsirise.pure_di.screens.common.ScreensNavigator
+import com.appsirise.pure_di.screens.common.dialogs.DialogsNavigator
 import kotlinx.coroutines.*
 
 class CatBreedDetailsActivity : AppCompatActivity(), CatBreedDetailsView.Listener {
@@ -13,17 +14,23 @@ class CatBreedDetailsActivity : AppCompatActivity(), CatBreedDetailsView.Listene
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private lateinit var catBreedDetailsView: CatBreedDetailsView
-    private lateinit var catId: String
-
     private lateinit var fetchCatBreedDetailsUseCase: FetchCatBreedDetailsUseCase
+    private lateinit var screensNavigator: ScreensNavigator
+    private lateinit var dialogsNavigator: DialogsNavigator
+
+    private lateinit var catId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         catBreedDetailsView = CatBreedDetailsView(LayoutInflater.from(this), null)
         setContentView(catBreedDetailsView.rootView)
+
+        fetchCatBreedDetailsUseCase = FetchCatBreedDetailsUseCase()
+        screensNavigator = ScreensNavigator(this)
+        dialogsNavigator = DialogsNavigator(supportFragmentManager)
+
         // retrieve breed ID passed from outside
         catId = intent.extras!!.getString(EXTRA_CAT_BREED_ID)!!
-        fetchCatBreedDetailsUseCase = FetchCatBreedDetailsUseCase()
     }
 
     override fun onStart() {
@@ -54,13 +61,11 @@ class CatBreedDetailsActivity : AppCompatActivity(), CatBreedDetailsView.Listene
     }
 
     private fun onFetchFailed() {
-        supportFragmentManager.beginTransaction()
-            .add(ServerErrorDialogFragment.newInstance(), null)
-            .commitAllowingStateLoss()
+        dialogsNavigator.showServerErrorDialog()
     }
 
     override fun onBackClicked() {
-        onBackPressed()
+        screensNavigator.navigateBack()
     }
 
     companion object {
