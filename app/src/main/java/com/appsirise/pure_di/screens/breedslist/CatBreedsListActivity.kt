@@ -5,17 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.appsirise.pure_di.R
+import com.appsirise.pure_di.base.BaseActivity
 import com.appsirise.pure_di.breeds.CatBreed
 import com.appsirise.pure_di.screens.breedslist.CatBreedsListActivity.CatBreedsAdapter.CatBreedViewHolder
 import com.appsirise.pure_di.screens.common.ScreensNavigator
 import com.appsirise.pure_di.screens.common.dialogs.DialogsNavigator
 import kotlinx.coroutines.*
 
-class CatBreedsListActivity : AppCompatActivity(), CatBreedsListView.Listener {
+class CatBreedsListActivity : BaseActivity(), CatBreedsListView.Listener {
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
@@ -30,7 +30,7 @@ class CatBreedsListActivity : AppCompatActivity(), CatBreedsListView.Listener {
         super.onCreate(savedInstanceState)
         catBreedsListView = CatBreedsListView(LayoutInflater.from(this), null)
         setContentView(catBreedsListView.rootView)
-        fetchCatsCatBreedsUseCase = FetchCatBreedsUseCase()
+        fetchCatsCatBreedsUseCase = appDiRoot.fetchCatBreedsUseCase
         screensNavigator = ScreensNavigator(this)
         dialogsNavigator = DialogsNavigator(supportFragmentManager)
     }

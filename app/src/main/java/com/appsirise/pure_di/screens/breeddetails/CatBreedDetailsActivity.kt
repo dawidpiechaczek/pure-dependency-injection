@@ -4,12 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import androidx.appcompat.app.AppCompatActivity
+import com.appsirise.pure_di.base.BaseActivity
 import com.appsirise.pure_di.screens.common.ScreensNavigator
 import com.appsirise.pure_di.screens.common.dialogs.DialogsNavigator
 import kotlinx.coroutines.*
 
-class CatBreedDetailsActivity : AppCompatActivity(), CatBreedDetailsView.Listener {
+class CatBreedDetailsActivity : BaseActivity(), CatBreedDetailsView.Listener {
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
@@ -25,7 +25,7 @@ class CatBreedDetailsActivity : AppCompatActivity(), CatBreedDetailsView.Listene
         catBreedDetailsView = CatBreedDetailsView(LayoutInflater.from(this), null)
         setContentView(catBreedDetailsView.rootView)
 
-        fetchCatBreedDetailsUseCase = FetchCatBreedDetailsUseCase()
+        fetchCatBreedDetailsUseCase = appDiRoot.fetchCatBreedDetailsUseCase
         screensNavigator = ScreensNavigator(this)
         dialogsNavigator = DialogsNavigator(supportFragmentManager)
 
