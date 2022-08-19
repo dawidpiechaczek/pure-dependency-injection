@@ -30,8 +30,8 @@ class CatBreedsListActivity : BaseActivity(), CatBreedsListView.Listener {
         super.onCreate(savedInstanceState)
         catBreedsListView = CatBreedsListView(LayoutInflater.from(this), null)
         setContentView(catBreedsListView.rootView)
-        fetchCatsCatBreedsUseCase = appDiRoot.fetchCatBreedsUseCase
-        screensNavigator = ScreensNavigator(this)
+        fetchCatsCatBreedsUseCase = activityDiRoot.fetchCatBreedsUseCase
+        screensNavigator = activityDiRoot.screensNavigator
         dialogsNavigator = DialogsNavigator(supportFragmentManager)
     }
 

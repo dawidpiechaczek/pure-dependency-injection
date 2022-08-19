@@ -25,8 +25,8 @@ class CatBreedDetailsActivity : BaseActivity(), CatBreedDetailsView.Listener {
         catBreedDetailsView = CatBreedDetailsView(LayoutInflater.from(this), null)
         setContentView(catBreedDetailsView.rootView)
 
-        fetchCatBreedDetailsUseCase = appDiRoot.fetchCatBreedDetailsUseCase
-        screensNavigator = ScreensNavigator(this)
+        fetchCatBreedDetailsUseCase = activityDiRoot.fetchCatBreedDetailsUseCase
+        screensNavigator = activityDiRoot.screensNavigator
         dialogsNavigator = DialogsNavigator(supportFragmentManager)
 
         // retrieve breed ID passed from outside
