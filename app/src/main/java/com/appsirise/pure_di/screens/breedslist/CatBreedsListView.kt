@@ -19,7 +19,7 @@ class CatBreedsListView(layoutInflater: LayoutInflater, parent: ViewGroup?) :
 
     private val swipeRefresh: SwipeRefreshLayout
     private val recyclerView: RecyclerView
-    private val catBreedsAdapter: CatBreedsListActivity.CatBreedsAdapter
+    private val catBreedsAdapter: CatBreedsAdapter
 
     init {
         swipeRefresh = findViewById(R.id.swipeRefresh)
@@ -31,7 +31,7 @@ class CatBreedsListView(layoutInflater: LayoutInflater, parent: ViewGroup?) :
 
         recyclerView = findViewById(R.id.recycler)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        catBreedsAdapter = CatBreedsListActivity.CatBreedsAdapter { clickedCat ->
+        catBreedsAdapter = CatBreedsAdapter { clickedCat ->
             listeners.forEach { listener ->
                 listener.onCatBreedClicked(clickedCat)
             }

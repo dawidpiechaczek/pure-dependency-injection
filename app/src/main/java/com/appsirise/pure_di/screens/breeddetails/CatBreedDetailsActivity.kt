@@ -27,7 +27,7 @@ class CatBreedDetailsActivity : BaseActivity(), CatBreedDetailsView.Listener {
 
         fetchCatBreedDetailsUseCase = activityDiRoot.fetchCatBreedDetailsUseCase
         screensNavigator = activityDiRoot.screensNavigator
-        dialogsNavigator = DialogsNavigator(supportFragmentManager)
+        dialogsNavigator = activityDiRoot.dialogsNavigator
 
         // retrieve breed ID passed from outside
         catId = intent.extras!!.getString(EXTRA_CAT_BREED_ID)!!
