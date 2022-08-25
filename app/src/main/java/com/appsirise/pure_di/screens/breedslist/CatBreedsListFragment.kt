@@ -23,9 +23,9 @@ class CatBreedsListFragment : BaseFragment(), CatBreedsListView.Listener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        fetchCatsCatBreedsUseCase = activityDiRoot.fetchCatBreedsUseCase
-        screensNavigator = activityDiRoot.screensNavigator
-        dialogsNavigator = activityDiRoot.dialogsNavigator
+        fetchCatsCatBreedsUseCase = presentationDiRoot.fetchCatBreedsUseCase
+        screensNavigator = presentationDiRoot.screensNavigator
+        dialogsNavigator = presentationDiRoot.dialogsNavigator
     }
 
     override fun onCreateView(
@@ -33,7 +33,7 @@ class CatBreedsListFragment : BaseFragment(), CatBreedsListView.Listener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        catBreedsListView = CatBreedsListView(LayoutInflater.from(requireContext()), container)
+        catBreedsListView = presentationDiRoot.viewFactory.newCatBreedsListView(container)
         return catBreedsListView.rootView
     }
 
@@ -56,9 +56,7 @@ class CatBreedsListFragment : BaseFragment(), CatBreedsListView.Listener {
             catBreedsListView.showProgressIndication()
             try {
                 when (val result = fetchCatsCatBreedsUseCase.fetchCatBreeds()) {
-                    FetchCatBreedsUseCase.Result.Failure -> {
-                        onFetchFailed()
-                    }
+                    FetchCatBreedsUseCase.Result.Failure -> onFetchFailed()
                     is FetchCatBreedsUseCase.Result.Success -> {
                         catBreedsListView.bindCats(result.cats)
                         isDataLoaded = true

@@ -3,7 +3,6 @@ package com.appsirise.pure_di.screens.breeddetails
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import com.appsirise.pure_di.base.BaseActivity
 import com.appsirise.pure_di.screens.common.ScreensNavigator
 import com.appsirise.pure_di.screens.common.dialogs.DialogsNavigator
@@ -22,12 +21,12 @@ class CatBreedDetailsActivity : BaseActivity(), CatBreedDetailsView.Listener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        catBreedDetailsView = CatBreedDetailsView(LayoutInflater.from(this), null)
+        catBreedDetailsView = presentationDiRoot.viewFactory.newCatBreedsDetailsView()
         setContentView(catBreedDetailsView.rootView)
 
-        fetchCatBreedDetailsUseCase = activityDiRoot.fetchCatBreedDetailsUseCase
-        screensNavigator = activityDiRoot.screensNavigator
-        dialogsNavigator = activityDiRoot.dialogsNavigator
+        fetchCatBreedDetailsUseCase = presentationDiRoot.fetchCatBreedDetailsUseCase
+        screensNavigator = presentationDiRoot.screensNavigator
+        dialogsNavigator = presentationDiRoot.dialogsNavigator
 
         // retrieve breed ID passed from outside
         catId = intent.extras!!.getString(EXTRA_CAT_BREED_ID)!!
